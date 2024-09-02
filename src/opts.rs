@@ -15,7 +15,7 @@ pub enum Commands {
     Csv(CsvOpts),
 }
 pub fn take() -> String {
-    println!("{}", env::consts::OS);
+    // println!("{}", env::consts::OS);
     format!("转化成Json1{}", env::consts::OS)
 }
 #[derive(Debug, Parser)]
@@ -23,9 +23,11 @@ pub struct CsvOpts {
     #[arg(short, long,value_parser=verify_file_exists)]
     pub input: String,
 
-    #[arg(short, long, default_value = "output.json")]
+    #[arg(short, long, default_value = "output.csv")]
     pub output: String,
 
+    #[arg(short, long, default_value = "email")] // "output.json".into()
+    pub keys: String,
     #[arg(short, long, default_value_t = ',')]
     delimiter: char,
 
