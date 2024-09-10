@@ -2,10 +2,11 @@ use aes::Aes128;
 use block_modes::block_padding::Pkcs7;
 use block_modes::{BlockMode, Cbc};
 use encoding_rs::Encoding;
-use rand::Rng;
+use rand::{random, Rng};
 use std::env;
 
 // Type alias for AES128-CBC with PKCS7 padding
+//带PKCS7填充的AES128-CBC的类型别名
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 
 fn generate_key(key_seed: Option<&str>) -> Vec<u8> {
@@ -47,7 +48,7 @@ fn hex_to_bytes(hex_str: &str) -> Vec<u8> {
 // Encrypt the given text with AES-CBC
 pub fn encrypt(plain_text: &str, key_seed: Option<&str>, charset: &str) -> Option<String> {
     let key = generate_key(key_seed);
-    let iv = rand::thread_rng().gen::<[u8; 16]>(); // 16-byte IV for AES128-CBC
+    let iv = random::<[u8; 16]>(); // 16-byte IV for AES128-CBC
 
     let cipher = Aes128Cbc::new_from_slices(&key, &iv).unwrap();
 
