@@ -1,25 +1,10 @@
 use crate::decrypt;
 use csv::{Reader, StringRecord, Writer};
-use serde::{Deserialize, Serialize};
 use std::error::Error;
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct Player {
-    #[serde(rename = "Name")]
-    name: String,
-    #[serde(rename = "Position")]
-    position: String,
-    #[serde(rename = "DOB")]
-    dob: String,
-    #[serde(rename = "Nationality")]
-    nationality: String,
-    #[serde(rename = "Kit Number")]
-    kit: u8,
-}
 pub fn process_csv(input: &str, output: &str, keys: &str) -> anyhow::Result<()> {
     let mut reader = Reader::from_path(input)?;
     let mut records = Vec::with_capacity(128);
-    // We nest this call in its own scope because of lifetimes.
+    // 由于生命周期，我们将此调用嵌套在其自己的范围内。
     let headers = reader.headers()?.clone();
     let vec_index = find_vec_index(&headers, keys_to_vec(keys));
     for record in reader.records() {
@@ -36,6 +21,7 @@ pub fn process_csv(input: &str, output: &str, keys: &str) -> anyhow::Result<()> 
         records.push(data);
     }
     write_csv(&headers, &records, output).expect("this is error");
+    println!("生成成功");
     Ok(())
 }
 // 将data  数据写入csv文件
@@ -52,6 +38,7 @@ pub fn write_csv(
     wtr.flush()?;
     Ok(())
 }
+// 将keys str 转换成vec
 pub fn keys_to_vec(keys: &str) -> Vec<&str> {
     let vec: Vec<_> = keys.split(',').collect();
     if vec.len() == 1 {
@@ -59,9 +46,7 @@ pub fn keys_to_vec(keys: &str) -> Vec<&str> {
     };
     vec
 }
-/*
-
-*/
+// 查找vec 中 对应的index
 pub fn find_vec_index(vec: &StringRecord, key_vec: Vec<&str>) -> Vec<usize> {
     let mut index_vec: Vec<usize> = Vec::new();
     for (i, key) in vec.iter().enumerate() {
@@ -71,14 +56,10 @@ pub fn find_vec_index(vec: &StringRecord, key_vec: Vec<&str>) -> Vec<usize> {
     }
     index_vec
 }
+// 解密
 pub fn key_vi_decrypt(r: &str) -> String {
-    let key = [
-        168, 138, 224, 55, 189, 151, 237, 194, 153, 242, 114, 191, 103, 176, 13, 33,
-    ];
-    let iv = [
-        44, 226, 76, 85, 129, 205, 196, 230, 36, 224, 130, 148, 138, 221, 2, 168,
-    ];
+    // 解密需要的key 和 iv 不能是动态生成的
     //let (key, iv) = generate_key_and_iv();
-    let r = decrypt(r, &key, &iv).expect("TODO: panic message");
+    let r = decrypt(r, None, "utf-8").expect("TODO: panic message");
     r
 }
